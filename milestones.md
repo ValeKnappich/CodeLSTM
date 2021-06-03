@@ -60,6 +60,34 @@ The `load_data` (or `load_multiple`) function returns the trainset, testset and 
 The architecture is simple and mainly consists of a multi-layer `nn.LSTM`. The `input_ids` (index in vocabulary) are transformed to dense embeddings using a `nn.Embedding` layer.
 The sequences are padded per batch and passed through the LSTM. The hidden states per token are further processed with a shared `nn.Linear` layer with a single output neuron. This output neuron indicates the likelihood of this token being the error location. The `argmax` over theses probabilities is the predicted error location.
 
+```
+class CodeLSTM(nn.Module):
+    def __init__(self, vocab, emb_dim, num_layers, bidirectional, **kwargs):
+        super().__init__()
+        self.vocab = vocab
+        self.embedd = nn.Embedding(len(vocab) + 1, emb_dim) # all tokens plus padding token
+        self.token_to_id = {token: id + 1 for id, token in enumerate(self.vocab)}
+        self.num_token_ids = len(vocab) + 1
+        self.lstm = nn.LSTM(
+            emb_dim, emb_dim, num_layers=num_layers, 
+            batch_first=True, bidirectional=bidirectional
+        )
+        self.linear = nn.Linear(emb_dim, 1)
+
+    def forward(self, batch_tokens):
+        batch_size = len(batch_tokens)
+        input_ids = [
+            torch.tensor([self.token_to_id[token] for token in tokens])
+            for tokens in batch_tokens
+        ]
+        input_ids = pad_sequence(input_ids, batch_first=True)
+        input_emb = self.embedd(input_ids)
+        lstm_out, _ = self.lstm(input_emb) # bs, sq_len, emb_dim
+        logits = self.linear(lstm_out).view(batch_size, -1)
+        return logits
+```
+
+
 The training procedure follows the standard Pytorch training loop. Train and test Loss and accuracy are logged to the `tqdm` progress bar. Evaluation is done once per epoch.
 
 ## Results
