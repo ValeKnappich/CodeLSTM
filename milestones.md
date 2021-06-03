@@ -4,7 +4,7 @@ The task was to implement a tokenization procedure for python code.
 
 The solution uses the `tokenize` package. Therefore it assumes the Python code to be correct (unlike tokenization in Milestone 2). From the output of `tokenize.tokenize` the following things are discarded: `[tokenize.ENCODING, tokenize.ENDMARKER, tokenize.ERRORTOKEN]` as well as all other tokens with an empty string value.
 
-```
+```python
 def to_token_list(s: str):
     with open(s, "rb") as fp:
         filter_types = [tokenize.ENCODING, tokenize.ENDMARKER, tokenize.ERRORTOKEN]
@@ -35,7 +35,7 @@ The `tokenize.tokenize` function is throwing an error, if parantheses are unmatc
 Luckily, in the case of a `TokenError` (mainly unmatched parantheses, occurs 9065 times in 50000 examples), the error is thrown at the end of the sequence, such that the procedure can be cut off without losing any information. In the case of the `IndentationError` (occurs 132 times in 50000 examples), the error is also thrown a few tokens after the actual error, but some tokens are cut off in the most cases. This is suboptimal, since it reduces the number error locations and therefore makes it easier for the model. On the other hand, this occurs only 132/50000 times, so the effect is marginal, which is why this is tolerated. The alternative would be to use the correct code for tokenization and apply the modifications afterwards, but this would make the model useless in real world applications, where the correct code is not available.
 
 Since the task is formulated as a token classification (see below) task, the given character index of the error location has to be transformed to the token index.
-```
+```python
 def char_index_to_token_index(instance: dict, tokens: list) -> int:
     tokens = [token.string for token in tokens]
     wrong_code = instance["wrong_code"]
@@ -60,7 +60,7 @@ The `load_data` (or `load_multiple`) function returns the trainset, testset and 
 The architecture is simple and mainly consists of a multi-layer `nn.LSTM`. The `input_ids` (index in vocabulary) are transformed to dense embeddings using a `nn.Embedding` layer.
 The sequences are padded per batch and passed through the LSTM. The hidden states per token are further processed with a shared `nn.Linear` layer with a single output neuron. This output neuron indicates the likelihood of this token being the error location. The `argmax` over theses probabilities is the predicted error location.
 
-```
+```python
 class CodeLSTM(nn.Module):
     def __init__(self, vocab, emb_dim, num_layers, bidirectional, **kwargs):
         super().__init__()

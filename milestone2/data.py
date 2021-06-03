@@ -3,7 +3,7 @@ import io
 from pathlib import Path
 import json
 
-from typing import Optional, List, Tuple
+from typing import List, Tuple
 import logging
 
 import torch
@@ -11,13 +11,13 @@ from tqdm import tqdm
 
 
 def tokenizer(
-        s: str, id: int, error_dict: dict, from_string: Optional[bool] = True
+        s: str, id: int, error_dict: dict
     ) -> List[tokenize.TokenInfo]:
     
-    fp = open(s) if not from_string else io.StringIO(s)
-    filter_types = [tokenize.ENCODING, tokenize.ENDMARKER, tokenize.ERRORTOKEN]
+    filter_types = [tokenize.ENCODING, tokenize.ENDMARKER]
+    token_gen = tokenize.generate_tokens(io.StringIO(s).readline)
     tokens = []
-    token_gen = tokenize.generate_tokens(fp.readline)
+    # use while instead of for to be able to handle exceptions inside the generator
     while True:
         try:
             token = next(token_gen)
@@ -26,16 +26,22 @@ def tokenizer(
         except tokenize.TokenError:
             error_dict["TokenError"].append(id)
             break
-        except StopIteration:
-            break
         except IndentationError:
             error_dict["IndentationError"].append(id)
             continue
+        except StopIteration:
+            break
+    # Add empty token to enable model to classify that a token has to be appended
+    # endmarker is not included when one of the errors above occur
+    # -> remove all endmarkers and always add one in the end
+    tokens.append(tokenize.TokenInfo(tokenize.ENDMARKER, "", len(s), len(s), ""))
     return tokens
 
 
 def char_index_to_token_index(instance: dict, tokens: list) -> int:
-    tokens = [token.string for token in tokens]
+    if isinstance(tokens[0], tokenize.TokenInfo):
+        tokens = [token.string for token in tokens]
+
     wrong_code = instance["wrong_code"]
     target_char_i = instance["metadata"]["fix_location"]
     char_i = 0
@@ -46,6 +52,15 @@ def char_index_to_token_index(instance: dict, tokens: list) -> int:
             break
         char_i += len(token)
     return token_i
+
+
+def token_index_to_char_index(code: str, tokens: list, token_index: int, meta) -> int:
+    char_i = 0
+    for token in tokens[:token_index + 1]:
+        char_i = code.find(token, char_i)
+        char_i += len(token)
+    char_i -= len(tokens[token_index]) # remove last to get start of error token
+    return char_i
 
 
 def print_error_stats(error_dict: dict, total_length: int) -> None:
@@ -63,12 +78,9 @@ def load_data(
 
     vocab = set()
     data = []
-
     with path.open() as fp:
         data = json.load(fp)
-
     preprocessed_data = []
-
     # If this is the only file, print errors here, else in super method
     if not error_dict:
         print_errors = True
@@ -84,7 +96,9 @@ def load_data(
         )
         instance_data = {
             "tokens": [token.string for token in tokens],
-            "error_index":  char_index_to_token_index(instance, tokens)
+            "error_index":  char_index_to_token_index(instance, tokens),
+            "metadata": instance["metadata"],
+            "wrong_code": instance["wrong_code"]
         }
         preprocessed_data.append(instance_data)
         vocab.update((token.string for token in tokens))
@@ -113,3 +127,33 @@ def load_multiple(
         vocab.update(vocab_)
     print_error_stats(error_dict, len(train) + len(test))
     return (train, test), vocab
+
+
+def combine_batch(batch: List[dict]) -> Tuple[list, list, list, list]:
+    # Merge tokens, labels etc. to form a batch
+    batch_tokens = [instance["tokens"] for instance in batch]
+    batch_labels = [instance["error_index"] for instance in batch]
+    meta_data = [instance["metadata"] for instance in batch]
+    wrong_code = [instance["wrong_code"] for instance in batch]
+    return batch_tokens, batch_labels, meta_data, wrong_code
+
+
+
+if __name__ == "__main__":
+    # test data loading and conversion between char index and token index
+    (train, _), vocab = load_multiple("dataset/", test_frac=0)
+    errors = 0
+    walrus = 0
+    for i, instance in enumerate(train):
+        char_i = instance["metadata"]["fix_location"]
+        token_index = char_index_to_token_index(
+            instance, instance["tokens"]
+        )
+        char_i_recon = token_index_to_char_index(
+            instance["wrong_code"], instance["tokens"], token_index, instance["metadata"]
+        )
+        if char_i != char_i_recon:
+            errors += 1
+            if ":=" in instance["wrong_code"]:
+                walrus += 1
+    print(f"Found {errors} errors during reconstruction, {walrus} of those included the walrus operator")
