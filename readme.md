@@ -7,4 +7,4 @@ Dependencies can be installed via `pip install -r requirements.txt`.
 
 ## Detailed information on milestones
 
-For detailed information on the implementations per milestone, [see here](milestones).
+For detailed information on the implementations per milestone, [see here](milestones.md).
