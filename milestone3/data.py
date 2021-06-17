@@ -7,7 +7,11 @@ from typing import List, Tuple
 import logging
 
 import torch
+from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
+
+
+FIX_TYPES = ["insert", "modify", "delete"]
 
 
 def tokenizer(
@@ -97,11 +101,22 @@ def load_data(
         instance_data = {
             "tokens": [token.string for token in tokens],
             "error_index":  char_index_to_token_index(instance, tokens),
+            "fix_type": FIX_TYPES.index(instance["metadata"]["fix_type"]),
+            "fix_token": instance["metadata"].get("fix_token"),
             "metadata": instance["metadata"],
             "wrong_code": instance["wrong_code"]
         }
         preprocessed_data.append(instance_data)
         vocab.update((token.string for token in tokens))
+    
+    # Assign token ids to tokens after vocab is final
+    # Token order: PAD, UNK, vocab[0], ...
+    vocab = ["PAD", "UNK"] + list(vocab)
+    token_to_id = {token: id for id, token in enumerate(vocab)}
+    id_to_token = {id: token for id, token in token_to_id.items()}
+    for instance in preprocessed_data:
+        instance["fix_token"] = id_to_token[instance["fix_token"]] if instance["fix_token"] else -1
+        instance["tokens"] = [token_to_id[token] for token in instance["tokens"]]
 
     if print_errors:
         print_error_stats(error_dict, len(preprocessed_data))
@@ -131,12 +146,14 @@ def load_multiple(
 
 def combine_batch(batch: List[dict]) -> Tuple[list, list, list, list]:
     # Merge tokens, labels etc. to form a batch
-    batch_tokens = [instance["tokens"] for instance in batch]
-    batch_labels = [instance["error_index"] for instance in batch]
-    meta_data = [instance["metadata"] for instance in batch]
-    wrong_code = [instance["wrong_code"] for instance in batch]
-    return batch_tokens, batch_labels, meta_data, wrong_code
-
+    input_ids    = [torch.tensor(instance["tokens"]) for instance in batch]
+    input_ids    = pad_sequence(input_ids, batch_first=True)
+    fix_location = torch.tensor([instance["error_index"] for instance in batch])
+    fix_type     = torch.tensor([instance["fix_type"] for instance in batch])
+    fix_token    = torch.tensor([instance["fix_token"] for instance in batch])
+    meta_data    = [instance["metadata"] for instance in batch]
+    wrong_code   = [instance["wrong_code"] for instance in batch]
+    return input_ids, fix_location, fix_type, fix_token, meta_data, wrong_code
 
 
 if __name__ == "__main__":

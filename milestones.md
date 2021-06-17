@@ -62,27 +62,33 @@ The sequences are padded per batch and passed through the LSTM. The hidden state
 
 ```python
 class CodeLSTM(nn.Module):
-    def __init__(self, vocab, emb_dim, num_layers, bidirectional, **kwargs):
+    def __init__(
+            self, vocab: set, emb_dim: int, num_layers: int, 
+            bidirectional: bool, **kwargs
+        ):
         super().__init__()
         self.vocab = vocab
-        self.embedd = nn.Embedding(len(vocab) + 1, emb_dim) # all tokens plus padding token
-        self.token_to_id = {token: id + 1 for id, token in enumerate(self.vocab)}
-        self.num_token_ids = len(vocab) + 1
+        # Token order: PAD, UNK, vocab[0], ...
+        self.num_token_ids = len(vocab) + 2
+        self.embedd = nn.Embedding(self.num_token_ids, emb_dim)
+        self.token_to_id = {token: id + 2 for id, token in enumerate(self.vocab)}
         self.lstm = nn.LSTM(
             emb_dim, emb_dim, num_layers=num_layers, 
             batch_first=True, bidirectional=bidirectional
         )
-        self.linear = nn.Linear(emb_dim, 1)
+        emb_factor = 2 if bidirectional else 1
+        self.linear = nn.Linear(emb_factor * emb_dim, 1)
 
-    def forward(self, batch_tokens):
+    def forward(self, batch_tokens: list) -> torch.Tensor:
         batch_size = len(batch_tokens)
+        # Get input ids,
         input_ids = [
-            torch.tensor([self.token_to_id[token] for token in tokens])
+            torch.tensor([self.token_to_id.get(token, 1) for token in tokens])
             for tokens in batch_tokens
         ]
-        input_ids = pad_sequence(input_ids, batch_first=True)
-        input_emb = self.embedd(input_ids)
-        lstm_out, _ = self.lstm(input_emb) # bs, sq_len, emb_dim
+        input_ids = pad_sequence(input_ids, batch_first=True).to(DEVICE)
+        input_emb = self.embedd(input_ids) # get dense embeddings for ids
+        lstm_out, _ = self.lstm(input_emb) # shape batch_size, seq_len, emb_dim
         logits = self.linear(lstm_out).view(batch_size, -1)
         return logits
 ```
@@ -91,4 +97,22 @@ class CodeLSTM(nn.Module):
 The training procedure follows the standard Pytorch training loop. Train and test Loss and accuracy are logged to the `tqdm` progress bar. Evaluation is done once per epoch.
 
 ## Results
+
+The architecture achieves up to 90% accuracy on the error location prediction task. The peformance seems to vary strongly across runs, due to random train-test-splitting and random parameter initialization.
+No formal hyperparameter tuning was performaed, but during trial and error the following hyperparameters have performed best:
+
+```python
+hparams = {
+    "batch_size": 16,
+    "bidirectional": True,
+    "n_epochs": 100,
+    "emb_dim": 64,
+    "num_layers": 5
+}
+```
+
+# Milestone 3
+
+To also predict, the type of correction and the token to correct the error, 2 additional classification heads are attached to the architecture.
+Both are only applied to the hidden representation of the predicted error location.
 

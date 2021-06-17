@@ -19,6 +19,9 @@ parser.add_argument(
     '--destination', help="Path to save your trained model.", default="model.pth")
 
 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+
 class CodeLSTM(nn.Module):
     def __init__(
             self, vocab: set, emb_dim: int, num_layers: int, 
@@ -34,16 +37,17 @@ class CodeLSTM(nn.Module):
             emb_dim, emb_dim, num_layers=num_layers, 
             batch_first=True, bidirectional=bidirectional
         )
-        self.linear = nn.Linear(emb_dim, 1)
+        emb_factor = 2 if bidirectional else 1
+        self.linear = nn.Linear(emb_factor * emb_dim, 1)
 
-    def forward(self, batch_tokens: torch.Tensor) -> torch.Tensor:
+    def forward(self, batch_tokens: list) -> torch.Tensor:
         batch_size = len(batch_tokens)
         # Get input ids,
         input_ids = [
             torch.tensor([self.token_to_id.get(token, 1) for token in tokens])
             for tokens in batch_tokens
         ]
-        input_ids = pad_sequence(input_ids, batch_first=True)
+        input_ids = pad_sequence(input_ids, batch_first=True).to(DEVICE)
         input_emb = self.embedd(input_ids) # get dense embeddings for ids
         lstm_out, _ = self.lstm(input_emb) # shape batch_size, seq_len, emb_dim
         logits = self.linear(lstm_out).view(batch_size, -1)
@@ -57,13 +61,15 @@ def acc(logits: torch.Tensor, labels: torch.Tensor) -> float:
 
 def train_model(
         model: nn.Module, train_ds: List[dict], test_ds: List[dict], 
-        n_epochs:int, batch_size: int, **kwargs
+        n_epochs: int, batch_size: int, lr: float, **kwargs
     ):
 
-    train_dl = DataLoader(train_ds, batch_size=8, shuffle=True, collate_fn=combine_batch)
-    test_dl = DataLoader(test_ds, batch_size=8, shuffle=False, collate_fn=combine_batch)
+    train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=combine_batch)
+    test_dl = DataLoader(test_ds, batch_size=batch_size, shuffle=False, collate_fn=combine_batch)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+    model.to(DEVICE)
 
     # Initialize metrics, -1 meaning not yet computed
     train_accs, train_acc = ([], -1)
@@ -77,9 +83,9 @@ def train_model(
 
         # Training loop
         for tokens, labels, _, _ in train_dl:
-            labels = torch.tensor(labels)
             optimizer.zero_grad()
             logits = model(tokens)
+            labels = torch.tensor(labels, device=DEVICE)
             loss = criterion(logits, labels)
             loss.backward()
             optimizer.step()
@@ -97,8 +103,8 @@ def train_model(
         # Eval loop
         model.eval()
         for tokens, labels, _, _ in test_dl:
-            labels = torch.tensor(labels)
             logits = model(tokens)
+            labels = torch.tensor(labels, device=DEVICE)
             test_loss = criterion(logits, labels)
             test_acc_step = acc(logits, labels)
             test_accs.append(test_acc_step)
@@ -131,10 +137,11 @@ if __name__ == "__main__":
 
     hparams = {
         "batch_size": 16,
-        "bidirectional": False,
-        "n_epochs": 30,
-        "emb_dim": 256,
-        "num_layers": 5
+        "bidirectional": True,
+        "n_epochs": 100,
+        "emb_dim": 64,
+        "num_layers": 5,
+        "lr": 0.01
     }
 
     model = CodeLSTM(vocab, **hparams)
