@@ -755,7 +755,7 @@
         "code": "\n@shared_task\ndef get_generation(ba_name, **kwargs):\n    \n    # log\n    if len(data) == 0:\n        pass\n",
         "metadata": {
             "file": "py150_files/data/WattTime/pyiso/pyiso/tasks.py",
-            "fix_location": 3,
+            "fix_location": 2,
             "fix_type": "modify",
             "fix_token": "ID",
             "id": 14066

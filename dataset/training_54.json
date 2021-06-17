@@ -1507,7 +1507,7 @@
         "code": "\n@memoize\ndef bucket(self):\n    return self.get_bucket(self.connection)\n",
         "metadata": {
             "file": "py150_files/data/dropbox/changes/changes/storage/s3.py",
-            "fix_location": 3,
+            "fix_location": 2,
             "fix_type": "modify",
             "fix_token": "ID",
             "id": 27131

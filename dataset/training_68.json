@@ -2563,13 +2563,13 @@
         "code": "\ndef __call__(self):\n    while True:\n        try:\n            pass\n        except KeyboardInterrupt:\n            if percent is not None:\n                pass\n        except:\n            pass\n",
         "metadata": {
             "file": "py150_files/data/ioam/holoviews/holoviews/ipython/widgets.py",
-            "fix_location": 147,
+            "fix_location": 43,
             "fix_type": "insert",
-            "fix_token": "",
+            "fix_token": ":",
             "id": 34222
         },
         "correct_code": "\ndef ID (ID ):\n    while LIT :\n        try :\n            pass \n        except ID :\n            if ID is not ID :\n                pass \n        except :\n            pass \n",
-        "wrong_code": "\ndef ID (ID ):\n    while LIT :\n        try :\n            pass \n        except ID :\n            if ID is not ID :\n                pass \n            except :\n            pass \n    "
+        "wrong_code": "\ndef ID (ID ):\n    while LIT :\n        try \n            pass \n        except ID :\n            if ID is not ID :\n                pass \n        except :\n            pass \n"
     },
     {
         "code": "\n\ndef __init__(self, **params):\n    super(RunProgress,self).__init__(**params)\n",

@@ -4866,7 +4866,7 @@
         "code": "@wraps(func)\ndef new_func(request, *args, **kwargs):\n    if response is None and request.is_websocket():\n        pass\n",
         "metadata": {
             "file": "py150_files/data/gregmuellegger/django-websocket/django_websocket/decorators.py",
-            "fix_location": 2,
+            "fix_location": 1,
             "fix_type": "delete",
             "id": 32921
         },
