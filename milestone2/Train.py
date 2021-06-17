@@ -14,7 +14,7 @@ from data import load_data, load_multiple, combine_batch
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--source', help="Folder path of all training files.", default="dataset/training_0.json")
+    '--source', help="Folder path of all training files.", default="../dataset/training_0.json")
 parser.add_argument(
     '--destination', help="Path to save your trained model.", default="model.pth")
 
@@ -111,7 +111,7 @@ def train_model(
         )
 
 
-def save_model(model: nn.Module, destination: str):
+def save_model(model: nn.Module, destination: Path):
     if destination.exists():
         logging.warning(f"File {destination} exists, overwriting!")
     torch.save(model, destination)
@@ -121,6 +121,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.source = Path(args.source)
     args.destination = Path(args.destination)
+    
     if args.source.is_file():
         (train_ds, test_ds), vocab = load_data(args.source)
     elif args.source.is_dir():
@@ -129,11 +130,11 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"File or directory {args.source.absolute()} was not found")
 
     hparams = {
-        "batch_size": 8,
+        "batch_size": 16,
         "bidirectional": False,
-        "n_epochs": 12,
-        "emb_dim": 128,
-        "num_layers": 3
+        "n_epochs": 30,
+        "emb_dim": 256,
+        "num_layers": 5
     }
 
     model = CodeLSTM(vocab, **hparams)

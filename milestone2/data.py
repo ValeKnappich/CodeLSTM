@@ -35,6 +35,10 @@ def tokenizer(
     # endmarker is not included when one of the errors above occur
     # -> remove all endmarkers and always add one in the end
     tokens.append(tokenize.TokenInfo(tokenize.ENDMARKER, "", len(s), len(s), ""))
+
+    if id in error_dict["IndentationError"]:
+        print(id, [token.string for token in tokens])
+
     return tokens
 
 
