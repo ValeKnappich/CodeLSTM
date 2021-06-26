@@ -10,6 +10,7 @@ from tqdm import tqdm
 from data import combine_batch, load_data, load_multiple, token_index_to_char_index
 from Train import CodeLSTM      # 'useless' import is needed for torch to load model
 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -23,20 +24,20 @@ parser.add_argument(
 def predict(model: torch.nn.Module, test_files: str):
     # Enable loading multiple files
     if test_files.is_file():
-        (train_ds, _), _ = load_data(test_files, test_frac=0)
+        (train_ds, _), _ = load_data(test_files, test_frac=0, vocab=model.vocab)
     elif test_files.is_dir():
-        (train_ds, _), _ = load_multiple(test_files, test_frac=0)
+        (train_ds, _), _ = load_multiple(test_files, test_frac=0, vocab=model.vocab)
     else:
         raise FileNotFoundError(f"File or directory {test_files.absolute()} was not found")
 
-    dl = DataLoader(train_ds, batch_size=8, shuffle=False, collate_fn=combine_batch)
-    preds, metas, char_preds = [], [], []
-    for tokens, labels, meta_data, wrong_code in tqdm(dl):
-        labels = torch.tensor(labels)
-        logits = model(tokens)
-        preds_ = logits.argmax(dim=1)
+    dl = DataLoader(train_ds, batch_size=32, shuffle=False, collate_fn=combine_batch)
+    metas, char_preds = [], []
+    for input_ids, tokens, labels, meta_data, wrong_code in tqdm(dl):
+        labels    = labels.to(DEVICE)
+        input_ids = input_ids.to(DEVICE)
+        logits    = model(input_ids)
+        preds_    = logits.argmax(dim=1)
 
-        preds.extend(preds_.tolist())
         metas.extend(meta_data)
         char_preds.extend([
             token_index_to_char_index(code, tokens_, pred, meta)

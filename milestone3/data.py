@@ -144,7 +144,7 @@ def load_multiple(
     return (train, test), vocab
 
 
-def combine_batch(batch: List[dict]) -> Tuple[list, list, list, list]:
+def combine_batch(batch: List[dict]):
     # Merge tokens, labels etc. to form a batch
     input_ids    = [torch.tensor(instance["tokens"]) for instance in batch]
     input_ids    = pad_sequence(input_ids, batch_first=True)

@@ -24,7 +24,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 class CodeLSTM(nn.Module):
     def __init__(
-            self, vocab: set, emb_dim: int, num_layers: int, 
+            self, vocab: list, emb_dim: int, num_layers: int, 
             bidirectional: bool, **kwargs
         ):
         super().__init__()
@@ -32,7 +32,6 @@ class CodeLSTM(nn.Module):
         # Token order: PAD, UNK, vocab[0], ...
         self.num_token_ids = len(vocab) + 2
         self.embedd = nn.Embedding(self.num_token_ids, emb_dim)
-        self.token_to_id = {token: id + 2 for id, token in enumerate(self.vocab)}
         self.lstm = nn.LSTM(
             emb_dim, emb_dim, num_layers=num_layers, 
             batch_first=True, bidirectional=bidirectional
@@ -40,14 +39,8 @@ class CodeLSTM(nn.Module):
         emb_factor = 2 if bidirectional else 1
         self.linear = nn.Linear(emb_factor * emb_dim, 1)
 
-    def forward(self, batch_tokens: list) -> torch.Tensor:
-        batch_size = len(batch_tokens)
-        # Get input ids,
-        input_ids = [
-            torch.tensor([self.token_to_id.get(token, 1) for token in tokens])
-            for tokens in batch_tokens
-        ]
-        input_ids = pad_sequence(input_ids, batch_first=True).to(DEVICE)
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+        batch_size = input_ids.shape[0]
         input_emb = self.embedd(input_ids) # get dense embeddings for ids
         lstm_out, _ = self.lstm(input_emb) # shape batch_size, seq_len, emb_dim
         logits = self.linear(lstm_out).view(batch_size, -1)
@@ -76,16 +69,18 @@ def train_model(
     test_accs, test_acc, test_loss = ([], -1,  torch.tensor(-1.))
     progress_bar = tqdm(total=len(train_dl))
     for epoch in range(n_epochs):
-        model.train()
         # Use same progressbar for each epoch
         progress_bar.refresh()
         progress_bar.reset()
 
         # Training loop
-        for tokens, labels, _, _ in train_dl:
+        model.train()
+        for input_ids, _, labels, _, _ in train_dl:
+            input_ids = input_ids.to(DEVICE)
+            labels    = labels.to(DEVICE)
+
             optimizer.zero_grad()
-            logits = model(tokens)
-            labels = torch.tensor(labels, device=DEVICE)
+            logits = model(input_ids)
             loss = criterion(logits, labels)
             loss.backward()
             optimizer.step()
@@ -102,10 +97,13 @@ def train_model(
         
         # Eval loop
         model.eval()
-        for tokens, labels, _, _ in test_dl:
-            logits = model(tokens)
-            labels = torch.tensor(labels, device=DEVICE)
-            test_loss = criterion(logits, labels)
+        for input_ids, _, labels, _, _ in test_dl:
+            input_ids = input_ids.to(DEVICE)
+            labels    = labels.to(DEVICE)
+
+            logits = model(input_ids)
+
+            test_loss     = criterion(logits, labels)
             test_acc_step = acc(logits, labels)
             test_accs.append(test_acc_step)
         
@@ -138,7 +136,7 @@ if __name__ == "__main__":
     hparams = {
         "batch_size": 16,
         "bidirectional": True,
-        "n_epochs": 100,
+        "n_epochs": 80 if args.source.is_file() else 8,
         "emb_dim": 64,
         "num_layers": 5,
         "lr": 0.01

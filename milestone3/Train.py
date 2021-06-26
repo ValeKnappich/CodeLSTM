@@ -23,7 +23,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 class CodeLSTM(nn.Module):
     def __init__(
-            self, vocab: set, emb_dim: int, num_layers: int, 
+            self, vocab: list, emb_dim: int, num_layers: int, 
             bidirectional: bool, **kwargs
         ):
         super().__init__()
