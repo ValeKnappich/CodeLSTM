@@ -65,6 +65,12 @@ def predict(model: torch.nn.Module, test_files: str):
     return preds
 
 
+def fix_code(code: str, char_i: int, typ: str, tok: str):
+    if typ == "delete":
+        return f"{code[:char_i]}{code[char_i+len(tok):]}"
+    elif typ == "modify"
+
+
 def load_model(source: str):
     model = torch.load(source)
     model.eval()
