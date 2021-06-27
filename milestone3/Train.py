@@ -1,11 +1,11 @@
-#!/usr/bin/python3
 import argparse
 import logging
 from pathlib import Path
 from typing import List
 
 import torch
-from torch import device, nn, optim
+from torch import nn, optim
+from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
@@ -28,7 +28,9 @@ class CodeLSTM(nn.Module):
         ):
         super().__init__()
         self.vocab = vocab
-        self.embedd = nn.Embedding(len(vocab), emb_dim)
+        # Token order: PAD, UNK, vocab[0], ...
+        self.num_token_ids = len(vocab) + 2
+        self.embedd = nn.Embedding(self.num_token_ids, emb_dim)
         self.lstm = nn.LSTM(
             emb_dim, emb_dim, num_layers=num_layers, 
             batch_first=True, bidirectional=bidirectional
@@ -37,7 +39,6 @@ class CodeLSTM(nn.Module):
         self.linear_location =  nn.Linear(emb_factor * emb_dim, 1)
         self.linear_type     =  nn.Linear(emb_factor * emb_dim, 3)
         self.linear_token    =  nn.Linear(emb_factor * emb_dim, len(vocab))
-
 
     def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
         batch_size  = input_ids.shape[0]
@@ -53,11 +54,8 @@ class CodeLSTM(nn.Module):
 
 
 def acc(logits: torch.Tensor, labels: torch.Tensor) -> float:
-    if len(logits) > 0:
-        preds = logits.argmax(dim=1)
-        return ((preds == labels).sum() / len(labels)).item()
-    else:
-        return 0
+    preds = logits.argmax(dim=1)
+    return ((preds == labels).sum() / len(labels)).item()
 
 
 def train_model(
@@ -83,7 +81,7 @@ def train_model(
 
         # Training loop
         model.train()
-        for input_ids, fix_location, fix_type, fix_token, _, _ in train_dl:
+        for input_ids, _, fix_location, fix_type, fix_token, _, _ in train_dl:
             input_ids      = input_ids.to(DEVICE)
             fix_location   = fix_location.to(DEVICE)
             fix_type       = fix_type.to(DEVICE)
@@ -119,7 +117,7 @@ def train_model(
         
         # Eval loop
         model.eval()
-        for input_ids, fix_location, fix_type, fix_token, _, _ in test_dl:
+        for input_ids, _, fix_location, fix_type, fix_token, _, _ in test_dl:
             input_ids      = input_ids.to(DEVICE)
             fix_location   = fix_location.to(DEVICE)
             fix_type       = fix_type.to(DEVICE)
@@ -177,7 +175,7 @@ if __name__ == "__main__":
     hparams = {
         "batch_size": 16,
         "bidirectional": True,
-        "n_epochs": 100,
+        "n_epochs": 80 if args.source.is_file() else 8,
         "emb_dim": 64,
         "num_layers": 5,
         "lr": 0.01
