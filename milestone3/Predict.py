@@ -6,6 +6,7 @@ from typing import List
 import torch
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
+import libcst as cst
 
 from data import combine_batch, load_data, load_multiple, token_index_to_char_index, FIX_TYPES
 from Train import CodeLSTM      # 'useless' import is needed for torch to load model
@@ -49,7 +50,10 @@ def predict(model: torch.nn.Module, test_files: str):
             "predicted_location": token_index_to_char_index(code, tokens_, loc, meta),
             "predicted_type": FIX_TYPES[typ],
             "predicted_token": model.vocab[tok],
-            "predicted_code": fix_code()
+            "predicted_code": fix_code(
+                code, token_index_to_char_index(code, tokens_, loc, meta),
+                FIX_TYPES[typ], model.vocab[tok], tokens_[loc]
+            ),
             "metadata": {
                 "id": meta["id"],
                 "file": meta["file"]
@@ -62,13 +66,18 @@ def predict(model: torch.nn.Module, test_files: str):
         if pred["predicted_type"] == "delete":
             del pred["predicted_token"]
 
+    n_correct = sum([is_correct(pred["predicted_code"]) for pred in preds])
+    print(f"Code corrected: {n_correct}/{len(preds)} ({n_correct/len(preds):.2f})")
     return preds
 
 
-def fix_code(code: str, char_i: int, typ: str, tok: str):
+def fix_code(code: str, char_i: int, typ: str, tok: str, old_tok: str):
     if typ == "delete":
-        return f"{code[:char_i]}{code[char_i+len(tok):]}"
-    elif typ == "modify"
+        return f"{code[:char_i]}{code[char_i+len(old_tok):]}"
+    elif typ == "modify":
+        return f"{code[:char_i]}{tok}{code[char_i+len(old_tok):]}"
+    elif typ == "insert":
+        return f"{code[:char_i]}{tok}{code[char_i:]}"
 
 
 def load_model(source: str):
@@ -78,7 +87,18 @@ def load_model(source: str):
 
 
 def write_predictions(destination: str, predictions: List[dict]):
-    json.dump(predictions, open(destination, "w"), indent=2)
+    json.dump(
+        sorted(predictions, key=lambda p: p["metadata"]["id"]), 
+        open(destination, "w"), indent=2
+    )
+
+
+def is_correct(x):
+    try:
+        cst.parse_module(x)
+    except Exception as e:
+        return 0
+    return 1
 
 
 if __name__ == "__main__":
