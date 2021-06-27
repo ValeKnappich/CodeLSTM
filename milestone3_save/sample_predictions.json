@@ -1,0 +1,31 @@
+[
+  {
+    "metadata": {
+      "file": "py150_files/data/0rpc/zerorpc-python/zerorpc/events.py",
+      "id": 1
+    },
+    "predicted_code": "def ID (ID ):\n    return ID .ID [:]\n",
+    "predicted_location": 18,
+    "predicted_type": "delete"
+  },
+  {
+    "metadata": {
+      "file": "py150_files/data/0rpc/zerorpc-python/zerorpc/events.py",
+      "id": 2
+    },
+    "predicted_code": "def ID (ID ):\n    return ID .ID \n",
+    "predicted_location": 8,
+    "predicted_type": "modify",
+    "predicted_token": "ID"
+  },
+  {
+    "metadata": {
+      "file": "py150_files/data/0rpc/zerorpc-python/zerorpc/events.py",
+      "id": 3
+    },
+    "predicted_code": "\ndef ID (ID ,ID ):\n    ID .ID =ID \n",
+    "predicted_location": 9,
+    "predicted_type": "modify",
+    "predicted_token": "ID"
+  }
+]
