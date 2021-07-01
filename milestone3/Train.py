@@ -77,7 +77,7 @@ def train_model(
 
     # Initialize metrics, -1 meaning not yet computed
     train_accs, train_acc = ([], (-1, -1, -1))
-    test_accs, test_acc, test_loss = ([], (-1, -1, -1),  torch.tensor(-1.))
+    test_accs, test_acc = ([], (-1, -1, -1))
     progress_bar = tqdm(total=len(train_dl), desc="Training")
     for epoch in range(n_epochs):
         # Use same progressbar for each epoch
@@ -116,7 +116,7 @@ def train_model(
             progress_bar.set_postfix_str(
                 f"train_acc (LOC, TYP, TOK): ({train_acc[0]:.2f}, {train_acc[1]:.2f}, {train_acc[2]:.2f}), "
                 f"test_acc (LOC, TYP, TOK): ({test_acc[0]:.2f}, {test_acc[1]:.2f}, {test_acc[2]:.2f}), "
-                f"train_loss_step: {loss.item():.2f}, test_loss_step: {test_loss.item():.2f}"
+                f"train_loss_step: {loss.item():.2f}"
             )
             progress_bar.update()
         
@@ -131,9 +131,6 @@ def train_model(
 
             logits_location, logits_type, logits_token = model(input_ids)
             logits_token = logits_token[fix_token_mask]
-            test_loss    = criterion(logits_location, fix_location) + \
-                           criterion(logits_token, fix_token) + \
-                           criterion(logits_type, fix_type)
 
             test_acc_step = (
                 acc(logits_location, fix_location),
@@ -155,7 +152,7 @@ def train_model(
         progress_bar.set_postfix_str(
             f"train_acc (LOC, TYP, TOK): ({train_acc[0]:.2f}, {train_acc[1]:.2f}, {train_acc[2]:.2f}), "
             f"test_acc (LOC, TYP, TOK): ({test_acc[0]:.2f}, {test_acc[1]:.2f}, {test_acc[2]:.2f}), "
-            f"train_loss_step: {loss.item():.2f}, test_loss_step: {test_loss.item():.2f}"
+            f"train_loss_step: {loss.item():.2f}"
         )
 
 
@@ -181,7 +178,7 @@ if __name__ == "__main__":
         "batch_size": 16,
         "bidirectional": True,
         "n_epochs": 80 if args.source.is_file() else 8,
-        "emb_dim": 64,
+        "emb_dim": 32,
         "num_layers": 5,
         "lr": 0.01
     }
