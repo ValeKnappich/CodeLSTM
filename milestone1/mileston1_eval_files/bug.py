@@ -1,0 +1,1 @@
+\n\ndef ID ():\n ID =ID (ID ={},ID ={LIT :LIT })\n\n assert ID .ID .ID LIT ]==LIT \n
