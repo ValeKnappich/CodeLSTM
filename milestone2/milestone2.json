@@ -1,0 +1,234 @@
+[
+    {
+        "code": "\n\ndef test_WildFunction():\n    sT(WildFunction('w'), \"WildFunction('w')\")\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 31,
+            "fix_type": "modify",
+            "fix_token": "LIT",
+            "id": 60001
+        },
+        "correct_code": "\n\ndef ID ():\n    ID (ID (LIT ),LIT )\n",
+        "wrong_code": "\n\ndef ID ():\n    ID (ID (LIT ),elif )\n"
+    },
+    {
+        "code": "\n\ndef test_settins():\n    raises(TypeError, lambda: srepr(x, method=\"garbage\"))\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 25,
+            "fix_type": "insert",
+            "fix_token": "lambda",
+            "id": 60002
+        },
+        "correct_code": "\n\ndef ID ():\n    ID (ID ,lambda :ID (ID ,ID =LIT ))\n",
+        "wrong_code": "\n\ndef ID ():\n    ID (ID ,:ID (ID ,ID =LIT ))\n"
+    },
+    {
+        "code": "\n\ndef test_Mul():\n    sT(3*x**3*y, \"Mul(Integer(3), Pow(Symbol('x'), Integer(3)), Symbol('y'))\")\n    assert srepr(3*x**3*y, order='old') == \"Mul(Integer(3), Symbol('y'), Pow(Symbol('x'), Integer(3)))\"\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 69,
+            "fix_type": "insert",
+            "fix_token": "**",
+            "id": 60003
+        },
+        "correct_code": "\n\ndef ID ():\n    ID (LIT *ID **LIT *ID ,LIT )\n    assert ID (LIT *ID **LIT *ID ,ID =LIT )==LIT \n",
+        "wrong_code": "\n\ndef ID ():\n    ID (LIT *ID **LIT *ID ,LIT )\n    assert ID (LIT *ID LIT *ID ,ID =LIT )==LIT \n"
+    },
+    {
+        "code": "\ndef test_AlgebraicNumber():\n    a = AlgebraicNumber(sqrt(2))\n    sT(a, \"AlgebraicNumber(Pow(Integer(2), Rational(1, 2)), [Integer(1), Integer(0)])\")\n    a = AlgebraicNumber(root(-2, 3))\n    sT(a, \"AlgebraicNumber(Pow(Integer(-2), Rational(1, 3)), [Integer(1), Integer(0)])\")\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 16,
+            "fix_type": "delete",
+            "id": 60004
+        },
+        "correct_code": "\ndef ID ():\n    ID =ID (ID (LIT ))\n    ID (ID ,LIT )\n    ID =ID (ID (-LIT ,LIT ))\n    ID (ID ,LIT )\n",
+        "wrong_code": "\ndef ID ():\n    and ID =ID (ID (LIT ))\n    ID (ID ,LIT )\n    ID =ID (ID (-LIT ,LIT ))\n    ID (ID ,LIT )\n"
+    },
+    {
+        "code": "\ndef test_PolyRing():\n    pass\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 22,
+            "fix_type": "delete",
+            "id": 60005
+        },
+        "correct_code": "\ndef ID ():\n    pass \n",
+        "wrong_code": "\ndef ID ():\n    pass \n*"
+    },
+    {
+        "code": "\n\ndef test_FracField():\n    pass\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 22,
+            "fix_type": "delete",
+            "id": 60006
+        },
+        "correct_code": "\n\ndef ID ():\n    pass \n",
+        "wrong_code": "\n\ndef ID ():\n    pass for \n"
+    },
+    {
+        "code": "\n\ndef test_PolyElement():\n    R, x, y = ring(\"x,y\", ZZ)\n    assert srepr(3*x**2*y + 1) == \"PolyElement(PolyRing((Symbol('x'), Symbol('y')), ZZ, lex), [((2, 1), 3), ((0, 0), 1)])\"\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 12,
+            "fix_type": "modify",
+            "fix_token": "\n",
+            "id": 60007
+        },
+        "correct_code": "\n\ndef ID ():\n    ID ,ID ,ID =ID (LIT ,ID )\n    assert ID (LIT *ID **LIT *ID +LIT )==LIT \n",
+        "wrong_code": "\n\ndef ID ():-    ID ,ID ,ID =ID (LIT ,ID )\n    assert ID (LIT *ID **LIT *ID +LIT )==LIT \n"
+    },
+    {
+        "code": "\n\ndef test_FracElement():\n    assert srepr((3*x**2*y + 1)/(x - y**2)) == \"FracElement(FracField((Symbol('x'), Symbol('y')), ZZ, lex), [((2, 1), 3), ((0, 0), 1)], [((1, 0), 1), ((0, 2), -1)])\"\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 52,
+            "fix_type": "insert",
+            "fix_token": ")",
+            "id": 60008
+        },
+        "correct_code": "\n\ndef ID ():\n    assert ID ((LIT *ID **LIT *ID +LIT )/(ID -ID **LIT ))==LIT \n",
+        "wrong_code": "\n\ndef ID ():\n    assert ID ((LIT *ID **LIT *ID +LIT /(ID -ID **LIT ))==LIT \n"
+    },
+    {
+        "code": "\ndef test_BooleanAtom():\n    assert srepr(true) == \"S.true\"\n    assert srepr(false) == \"S.false\"\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/printing/tests/test_repr.py",
+            "fix_location": 63,
+            "fix_type": "modify",
+            "fix_token": "\n",
+            "id": 60009
+        },
+        "correct_code": "\ndef ID ():\n    assert ID (ID )==LIT \n    assert ID (ID )==LIT \n",
+        "wrong_code": "\ndef ID ():\n    assert ID (ID )==LIT \n    assert ID (ID )==LIT return "
+    },
+    {
+        "code": "\ndef _intersect_interval(self, other):\n    \"\"\"Returns start and stop.\n\n        Takes intersection over the two intervals.\n        \"\"\"\n    interval = Intersection(self.interval, other.interval)\n    return interval.inf, interval.sup\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 1,
+            "fix_type": "modify",
+            "fix_token": "def",
+            "id": 60010
+        },
+        "correct_code": "\ndef ID (ID ,ID ):\n    LIT \n    ID =ID (ID .ID ,ID .ID )\n    return ID .ID ,ID .ID \n",
+        "wrong_code": "\n=ID (ID ,ID ):\n    LIT \n    ID =ID (ID .ID ,ID .ID )\n    return ID .ID ,ID .ID \n"
+    },
+    {
+        "code": "\n@property\ndef gen(self):\n    \"\"\"Returns the generator for the sequence\"\"\"\n    raise NotImplementedError(\"(%s).gen\" % self)\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 53,
+            "fix_type": "modify",
+            "fix_token": "",
+            "id": 60011
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT %ID )\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT %ID )\n!="
+    },
+    {
+        "code": "\n@property\ndef interval(self):\n    \"\"\"The interval on which the sequence is defined\"\"\"\n    raise NotImplementedError(\"(%s).interval\" % self)\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 47,
+            "fix_type": "delete",
+            "id": 60012
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT %ID )\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT break %ID )\n"
+    },
+    {
+        "code": "\n@property\ndef start(self):\n    \"\"\"The starting point of the sequence. This point is included\"\"\"\n    raise NotImplementedError(\"(%s).start\" % self)\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 43,
+            "fix_type": "modify",
+            "fix_token": "LIT",
+            "id": 60013
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT %ID )\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (if %ID )\n"
+    },
+    {
+        "code": "\n@property\ndef stop(self):\n    \"\"\"The ending point of the sequence. This point is included\"\"\"\n    raise NotImplementedError(\"(%s).stop\" % self)\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 24,
+            "fix_type": "delete",
+            "id": 60014
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT %ID )\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    lambda LIT \n    raise ID (LIT %ID )\n"
+    },
+    {
+        "code": "\n@property\ndef length(self):\n    \"\"\"Length of the sequence\"\"\"\n    raise NotImplementedError(\"(%s).length\" % self)\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 39,
+            "fix_type": "delete",
+            "id": 60015
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise ID (LIT %ID )\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    LIT \n    raise def ID (LIT %ID )\n"
+    },
+    {
+        "code": "\n@property\ndef variables(self):\n    \"\"\"Returns a tuple of variables that are bounded\"\"\"\n    return ()\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 40,
+            "fix_type": "delete",
+            "id": 60016
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    return ()\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    LIT \n    return in ()\n"
+    },
+    {
+        "code": "\n@property\ndef free_symbols(self):\n    \"\"\"\n        This method returns the symbols in the object, excluding those\n        that take on a specific value (i.e. the dummy symbols).\n\n        Examples\n        ========\n\n        >>> from sympy import SeqFormula\n        >>> from sympy.abc import n, m\n        >>> SeqFormula(m*n**2, (n, 0, 5)).free_symbols\n        set([m])\n        \"\"\"\n    return (set(j for i in self.args for j in i.free_symbols\n               .difference(self.variables)))\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 72,
+            "fix_type": "insert",
+            "fix_token": "in",
+            "id": 60017
+        },
+        "correct_code": "\n@ID \ndef ID (ID ):\n    LIT \n    return (ID (ID for ID in ID .ID for ID in ID .ID \n    .ID (ID .ID )))\n",
+        "wrong_code": "\n@ID \ndef ID (ID ):\n    LIT \n    return (ID (ID for ID in ID .ID for ID ID .ID \n    .ID (ID .ID )))\n"
+    },
+    {
+        "code": "\n@cacheit\ndef coeff(self, pt):\n    if pt < self.start or pt > self.stop:\n        pass\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 10,
+            "fix_type": "modify",
+            "fix_token": "ID",
+            "id": 60018
+        },
+        "correct_code": "\n@ID \ndef ID (ID ,ID ):\n    if ID <ID .ID or ID >ID .ID :\n        pass \n",
+        "wrong_code": "\n@ID \ndef while (ID ,ID ):\n    if ID <ID .ID or ID >ID .ID :\n        pass \n"
+    },
+    {
+        "code": "\ndef _add(self, other):\n    \"\"\"\n        Should only be used internally.\n\n        self._add(other) returns a new, term-wise added sequence if self\n        knows how to add with other, otherwise it returns ``None``.\n\n        ``other`` should only be a sequence object.\n\n        Used within :class:`SeqAdd` class.\n        \"\"\"\n    return None\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 32,
+            "fix_type": "modify",
+            "fix_token": "return",
+            "id": 60019
+        },
+        "correct_code": "\ndef ID (ID ,ID ):\n    LIT \n    return ID \n",
+        "wrong_code": "\ndef ID (ID ,ID ):\n    LIT \n    with ID \n"
+    },
+    {
+        "code": "\ndef _mul(self, other):\n    \"\"\"\n        Should only be used internally.\n\n        self._mul(other) returns a new, term-wise multiplied sequence if self\n        knows how to multiply with other, otherwise it returns ``None``.\n\n        ``other`` should only be a sequence object.\n\n        Used within :class:`SeqMul` class.\n        \"\"\"\n    return None\n",
+        "metadata": {
+            "file": "py150_files/data/sympy/sympy/sympy/series/sequences.py",
+            "fix_location": 47,
+            "fix_type": "delete",
+            "id": 60020
+        },
+        "correct_code": "\ndef ID (ID ,ID ):\n    LIT \n    return ID \n",
+        "wrong_code": "\ndef ID (ID ,ID ):\n    LIT \n    return ID \n    )"
+    }
+]
