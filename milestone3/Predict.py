@@ -6,9 +6,8 @@ from typing import List
 import torch
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
-import libcst as cst
 
-from data import combine_batch, load_data, load_multiple, token_index_to_char_index, FIX_TYPES
+from data import combine_batch, load_data, load_multiple, token_index_to_char_index, FIX_TYPES, is_correct
 from Train import CodeLSTM      # 'useless' import is needed for torch to load model
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -33,7 +32,7 @@ def predict(model: torch.nn.Module, test_files: str):
 
     dl = DataLoader(train_ds, batch_size=32, shuffle=False, collate_fn=combine_batch)
     metas, preds = [], []
-    for input_ids, tokens, fix_location, fix_type, fix_token, meta_data, wrong_code in tqdm(dl):
+    for input_ids, tokens, fix_location, fix_type, fix_token, meta_data, wrong_code in tqdm(dl, desc="Predicting"):
         input_ids      = input_ids.to(DEVICE)
         fix_location   = fix_location.to(DEVICE)
         fix_type       = fix_type.to(DEVICE)
@@ -52,12 +51,10 @@ def predict(model: torch.nn.Module, test_files: str):
             "predicted_token": model.vocab[tok],
             "predicted_code": fix_code(
                 code, token_index_to_char_index(code, tokens_, loc, meta),
-                FIX_TYPES[typ], model.vocab[tok], tokens_[loc]
-            ),
-            "metadata": {
-                "id": meta["id"],
-                "file": meta["file"]
-            }
+                FIX_TYPES[typ], model.vocab[tok], 
+                tokens_[loc] if loc < len(tokens_) else ""),
+            "wrong_code": code,
+            "metadata": meta
         } for loc, typ, tok, tokens_, code, meta
           in zip(location_pred, type_pred, token_pred, tokens, wrong_code, meta_data)
         ])
@@ -66,7 +63,7 @@ def predict(model: torch.nn.Module, test_files: str):
         if pred["predicted_type"] == "delete":
             del pred["predicted_token"]
 
-    n_correct = sum([is_correct(pred["predicted_code"]) for pred in preds])
+    n_correct = sum([is_correct(pred["predicted_code"]) for pred in tqdm(preds, desc="Checking correctness")])
     print(f"Code corrected: {n_correct}/{len(preds)} ({n_correct/len(preds):.2f})")
     return preds
 
@@ -91,14 +88,6 @@ def write_predictions(destination: str, predictions: List[dict]):
         sorted(predictions, key=lambda p: p["metadata"]["id"]), 
         open(destination, "w"), indent=2
     )
-
-
-def is_correct(x):
-    try:
-        cst.parse_module(x)
-    except Exception as e:
-        return 0
-    return 1
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import logging
 import torch
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
+import libcst as cst
 
 FIX_TYPES = ["insert", "modify", "delete"]
 
@@ -61,7 +62,11 @@ def token_index_to_char_index(code: str, tokens: list, token_index: int, meta) -
     for token in tokens[:token_index + 1]:
         char_i = code.find(token, char_i)
         char_i += len(token)
-    char_i -= len(tokens[token_index]) # remove last to get start of error token
+    # remove last to get start of error token
+    try:
+        char_i -= len(tokens[token_index]) if token_index < len(tokens) else 0
+    except:
+        import pdb; pdb.set_trace()
     return char_i
 
 
@@ -175,6 +180,14 @@ def load_multiple(
 def tokens_to_ids(tokens, vocab):
     token_to_id = {token: id for id, token in enumerate(vocab)}
     return [token_to_id.get(token, 1) for token in tokens]
+
+
+def is_correct(x):
+    try:
+        cst.parse_module(x)
+    except Exception as e:
+        return 0
+    return 1
 
 
 def combine_batch(batch: List[dict]):
