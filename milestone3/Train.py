@@ -48,8 +48,9 @@ class CodeLSTM(nn.Module):
         logits_location = self.linear_location(lstm_out).view(batch_size, -1)
         pred_location   = logits_location.argmax(dim=1)
         selected_hidden = torch.stack([data[location,:] for data, location in zip(lstm_out, pred_location)])
-        logits_type     = self.linear_type(selected_hidden)
         logits_token    = self.linear_token(selected_hidden)
+        seq_pooled      = lstm_out.mean(dim=1)
+        logits_type     = self.linear_type(selected_hidden)
         return logits_location, logits_type, logits_token
 
 
