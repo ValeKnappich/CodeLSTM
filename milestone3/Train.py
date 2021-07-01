@@ -92,9 +92,7 @@ def train_model(
             fix_type       = fix_type.to(DEVICE)
             fix_token_mask = fix_token != -1        # filter out the instances where there is no token to predict (delete type)
             fix_token      = fix_token[fix_token_mask].to(DEVICE)
-            # TODO: only optimize token and type when location is correct
-            # TODO: revisit masking, add masking for fix token, since its just the input token at that position
-            # TODO: maybe use gold labels for running type and token prediction
+            
             optimizer.zero_grad()
             logits_location, logits_type, logits_token = model(input_ids)
             logits_token = logits_token[fix_token_mask]

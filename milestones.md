@@ -82,5 +82,35 @@ The achieved test accuracy is between 80% and 90% when training on a single file
 # Milestone 3
 
 To also predict, the type of correction and the token to correct the error, 2 additional classification heads are attached to the architecture.
-Both are only applied to the hidden representation of the predicted error location.
+Both are only applied to the hidden representation of the predicted error location. Fot that purpose, the network uses 2 additional classification heads
+that predict the fix type and token respectively. Both receive the output representation of the token that was predicted as fix location.
+That means, that the prediction of fix type and token depends on the prediction of the fix location, so the model will receive misleading signals as long as the 
+fix location prediction is not meaningful. To diminish this effect, the respective losses are weighted according to a linear schedule. 
+The weight for the fix location linearly decreases, while the weight for the fix type and token increase linearly.
 
+```python
+self.location_weight = torch.tensor([-(x + 1) / n_epochs + 1 for x in range(n_epochs)])
+self.type_weight     = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
+self.token_weight    = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
+```
+
+Using the fix location, type and token, a fixed code can be generated. 
+
+```json  
+{
+    "predicted_location": 13,
+    "predicted_type": "modify",
+    "predicted_token": ")",
+    "predicted_code": "\n\ndef ID (ID ) :\n    pass \n",
+    "wrong_code":     "\n\ndef ID (ID from :\n    pass \n",
+    "metadata": {
+        "file": "py150_files/data/CenterForOpenScience/osf.io/api_tests/nodes/views/test_node_list.py",
+        "fix_location": 13,
+        "fix_type": "modify",
+        "fix_token": ")",
+        "id": 3006
+    }
+},
+```
+
+When training on a single file, the fraction of correct code produced from file unseen during training is between 50 and 60%. When training on multiple files, while still evaluating on unseen data, 70 - 80% of the generated code snippets are syntactically correct.
