@@ -11,6 +11,7 @@ from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
 import libcst as cst
 
+
 FIX_TYPES = ["insert", "modify", "delete"]
 
 def tokenizer(
@@ -63,10 +64,7 @@ def token_index_to_char_index(code: str, tokens: list, token_index: int, meta) -
         char_i = code.find(token, char_i)
         char_i += len(token)
     # remove last to get start of error token
-    try:
-        char_i -= len(tokens[token_index]) if token_index < len(tokens) else 0
-    except:
-        import pdb; pdb.set_trace()
+    char_i -= len(tokens[token_index]) if token_index < len(tokens) else 0
     return char_i
 
 
