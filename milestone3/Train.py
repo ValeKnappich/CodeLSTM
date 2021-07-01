@@ -9,7 +9,7 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 
-from data import load_data, load_multiple, combine_batch
+from data import load_data, load_multiple, combine_batch, is_correct
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -24,7 +24,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 class CodeLSTM(nn.Module):
     def __init__(
             self, vocab: list, emb_dim: int, num_layers: int, 
-            bidirectional: bool, **kwargs
+            bidirectional: bool, n_epochs: int, **kwargs
         ):
         super().__init__()
         self.vocab = vocab
@@ -36,9 +36,14 @@ class CodeLSTM(nn.Module):
             batch_first=True, bidirectional=bidirectional
         )
         emb_factor = 2 if bidirectional else 1
-        self.linear_location =  nn.Linear(emb_factor * emb_dim, 1)
-        self.linear_type     =  nn.Linear(emb_factor * emb_dim, 3)
-        self.linear_token    =  nn.Linear(emb_factor * emb_dim, len(vocab))
+        self.linear_location = nn.Linear(emb_factor * emb_dim, 1)
+        self.linear_type     = nn.Linear(emb_factor * emb_dim, 3)
+        self.linear_token    = nn.Linear(emb_factor * emb_dim, len(vocab))
+
+        # Weight gradient update, start with high weight on location and move to typ and tok
+        self.location_weight = torch.tensor([-(x + 1) / n_epochs + 1 for x in range(n_epochs)])
+        self.type_weight     = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
+        self.token_weight    = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
 
     def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
         batch_size  = input_ids.shape[0]
@@ -49,7 +54,6 @@ class CodeLSTM(nn.Module):
         pred_location   = logits_location.argmax(dim=1)
         selected_hidden = torch.stack([data[location,:] for data, location in zip(lstm_out, pred_location)])
         logits_token    = self.linear_token(selected_hidden)
-        seq_pooled      = lstm_out.mean(dim=1)
         logits_type     = self.linear_type(selected_hidden)
         return logits_location, logits_type, logits_token
 
@@ -74,7 +78,7 @@ def train_model(
     # Initialize metrics, -1 meaning not yet computed
     train_accs, train_acc = ([], (-1, -1, -1))
     test_accs, test_acc, test_loss = ([], (-1, -1, -1),  torch.tensor(-1.))
-    progress_bar = tqdm(total=len(train_dl))
+    progress_bar = tqdm(total=len(train_dl), desc="Training")
     for epoch in range(n_epochs):
         # Use same progressbar for each epoch
         progress_bar.refresh()
@@ -94,9 +98,9 @@ def train_model(
             optimizer.zero_grad()
             logits_location, logits_type, logits_token = model(input_ids)
             logits_token = logits_token[fix_token_mask]
-            loss = criterion(logits_location, fix_location) + \
-                   criterion(logits_token, fix_token) + \
-                   criterion(logits_type, fix_type)
+            loss = model.location_weight[epoch] * criterion(logits_location, fix_location) + \
+                   model.type_weight[epoch]     * criterion(logits_token, fix_token) + \
+                   model.token_weight[epoch]    * criterion(logits_type, fix_type)
 
             loss.backward()
             optimizer.step()
