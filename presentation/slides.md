@@ -9,7 +9,6 @@ theme: metropolis
 slide_level: 1
 aspectratio: 169
 fontsize: 12pt
-theme: metropolis
 
 header-includes: |
     \usepackage{tabto}
@@ -128,15 +127,15 @@ header-includes: |
 \vspace{15pt}
 
 \begin{figure}
-\centering
-\begin{lstlisting}[language=Python, basicstyle=\scriptsize, xleftmargin=.1\textwidth]
+    \centering
+    \begin{lstlisting}[language=Python, basicstyle=\scriptsize, xleftmargin=.1\textwidth]
 location_weight = torch.tensor([-(x + 1) / n_epochs + 1 
                                 for x in range(n_epochs)])
 type_weight     = torch.tensor([(x + 1) / n_epochs 
                                 for x in range(n_epochs)])
 token_weight    = torch.tensor([(x + 1) / n_epochs 
                                 for x in range(n_epochs)])
-\end{lstlisting}
+    \end{lstlisting}
 \end{figure}
 
 
@@ -144,7 +143,7 @@ token_weight    = torch.tensor([(x + 1) / n_epochs
 
 ## Results
 
-- Results vary depending on random initialization and random test split
+- Use $10\%$ of the files for testing, $90\%$ for training
 - Evaluating on test set once per epoch
     - Location Accuracy: $~97\%$
     - Fix Type Accuracy: $~89\%$
