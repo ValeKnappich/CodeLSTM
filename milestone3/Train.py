@@ -13,7 +13,7 @@ from data import load_data, load_multiple, combine_batch, is_correct
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--source', help="Folder path of all training files.", default="../dataset/training_0.json")
+    '--source', help="Folder path of all training files.", default="../dataset/train")
 parser.add_argument(
     '--destination', help="Path to save your trained model.", default="model.pth")
 
@@ -71,7 +71,7 @@ def train_model(
     train_dl  = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=combine_batch)
     test_dl   = DataLoader(test_ds, batch_size=batch_size, shuffle=False, collate_fn=combine_batch)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     model.to(DEVICE)
 
@@ -173,12 +173,12 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"File or directory {args.source.absolute()} was not found")
 
     hparams = {
-        "batch_size": 16,
+        "batch_size": 32,
         "bidirectional": True,
         "n_epochs": 80 if args.source.is_file() else 8,
-        "emb_dim": 32,
+        "emb_dim": 48,
         "num_layers": 5,
-        "lr": 0.01
+        "lr": 0.001
     }
 
     model = CodeLSTM(vocab, **hparams)

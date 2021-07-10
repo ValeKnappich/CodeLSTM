@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     '--model', help="Path of trained model.", default="model.pth")
 parser.add_argument(
-    '--source', help="Folder path of all test files.", default="../dataset/training_0.json")
+    '--source', help="Folder path of all test files.", default="../dataset/test")
 parser.add_argument(
     '--destination', help="Path to output json file of extracted predictions.", default="predictions.json")
 
@@ -64,7 +64,7 @@ def predict(model: torch.nn.Module, test_files: str):
             del pred["predicted_token"]
 
     n_correct = sum([is_correct(pred["predicted_code"]) for pred in tqdm(preds, desc="Checking correctness")])
-    print(f"Code corrected: {n_correct}/{len(preds)} ({n_correct/len(preds):.2f})")
+    print(f"Code corrected: {n_correct}/{len(preds)} ({n_correct/len(preds)*100:.1f}%)")
     return preds
 
 
