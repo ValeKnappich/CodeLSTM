@@ -63,29 +63,68 @@ def predict(model: torch.nn.Module, test_files: str):
         if pred["predicted_type"] == "delete":
             del pred["predicted_token"]
 
-    n_correct = 0
-    for pred in tqdm(preds, desc="Checking correctness"):
-        if is_correct(pred["predicted_code"]):
-            n_correct += 1
-        elif pred["predicted_location"] == pred["metadata"]["fix_location"] and \
-                    pred["predicted_type"] == pred["metadata"]["fix_type"]:
-            if "predicted_token" in pred and pred["predicted_token"] != pred["metadata"]["fix_token"]:
-                continue
-            from pprint import pprint
-            pprint(pred)
+    # def mark_spaces(s: str):
+    #     s = s.split("\n")
+    #     for i, line in enumerate(s):
+    #         s[i] = "|" + line + "|"
+    #     return "\n".join(s)
 
-    # n_correct = sum([is_correct(pred["predicted_code"]) for pred in tqdm(preds, desc="Checking correctness")])
+    # Error Analysis
+    # n_correct = 0
+    # all_correct = 0
+    # for pred in tqdm(preds, desc="Checking correctness"):
+    #     if is_correct(pred["predicted_code"]):
+    #         n_correct += 1
+    #     elif pred["predicted_location"] == pred["metadata"]["fix_location"] and \
+    #                 pred["predicted_type"] == pred["metadata"]["fix_type"]:
+    #         if "predicted_token" in pred and pred["predicted_token"] != pred["metadata"]["fix_token"]:
+    #             continue
+    #         print("\n", "#"*20)
+    #         print(pred["predicted_location"], pred["predicted_type"], pred.get("predicted_token"))
+    #         print("Wrong: \n", mark_spaces(pred["wrong_code"]))
+    #         print("Corrected: \n", mark_spaces(pred["predicted_code"]))
+    #         print("\n", "#"*20)
+    #         all_correct += 1
+
+    n_correct = sum([is_correct(pred["predicted_code"]) for pred in tqdm(preds, desc="Checking correctness")])
     print(f"Code corrected: {n_correct}/{len(preds)} ({n_correct/len(preds)*100:.1f}%)")
     return preds
 
 
 def fix_code(code: str, char_i: int, typ: str, tok: str, old_tok: str):
     if typ == "delete":
-        return f"{code[:char_i]}{code[char_i+len(old_tok):]}"
+        return post_processing(f"{code[:char_i]}{code[char_i+len(old_tok):]}")
     elif typ == "modify":
-        return f"{code[:char_i]}{tok}{code[char_i+len(old_tok):]}"
+        if tok in ["ID", "def"]:
+            spaces = 1
+        else:
+            spaces = 0
+        return post_processing(f"{code[:char_i]}{tok}{' '*spaces}{code[char_i+len(old_tok):]}")
     elif typ == "insert":
-        return f"{code[:char_i]}{tok} {code[char_i:]}"
+        return post_processing(f"{code[:char_i]}{tok} {code[char_i:]}")
+
+
+def post_processing(code: str):
+    code = code.split("\n")
+    for i, line in enumerate(code):
+
+        # fix sapcing issues
+        n_spaces = number_of_leading_spaces(line)
+        tabs = n_spaces // 4
+        line = "    " * tabs + line[n_spaces:]
+
+        code[i] = line
+    return "\n".join(code)
+
+
+def number_of_leading_spaces(s: str):
+    i = 0
+    for c in s:
+        if c == " ":
+            i += 1
+        else:
+            break
+    return i
 
 
 def load_model(source: str):

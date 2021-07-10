@@ -98,12 +98,12 @@ token_weight    = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
 ## Results
 
 - Results vary depending on random initialization and random test split
-- Evaluating on test set once per epoch (single file / multiple files)
-    - Location Accuracy: $~85-95\%\quad/\quad~90-95\%$
-    - Fix Type Accuracy: $~65-75\%\quad/\quad~80-85\%$
-    - Fix Token Accuracy: $~55-65\%\quad/\quad~70-80\%$
+- Evaluating on test set once per epoch
+    - Location Accuracy: $~97\%$
+    - Fix Type Accuracy: $~89\%$
+    - Fix Token Accuracy: $~89\%$
 - Prediction
-    - Fraction of corrected code snippets: $~60\%\quad/\quad~80\%$
+    - Fraction of corrected code snippets: $~92\%$
 
 ## Questions?
 
