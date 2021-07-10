@@ -176,7 +176,7 @@ if __name__ == "__main__":
         "batch_size": 32,
         "bidirectional": True,
         "n_epochs": 80 if args.source.is_file() else 8,
-        "emb_dim": 48,
+        "emb_dim": 64,
         "num_layers": 5,
         "lr": 0.001
     }

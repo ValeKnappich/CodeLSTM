@@ -63,7 +63,18 @@ def predict(model: torch.nn.Module, test_files: str):
         if pred["predicted_type"] == "delete":
             del pred["predicted_token"]
 
-    n_correct = sum([is_correct(pred["predicted_code"]) for pred in tqdm(preds, desc="Checking correctness")])
+    n_correct = 0
+    for pred in tqdm(preds, desc="Checking correctness"):
+        if is_correct(pred["predicted_code"]):
+            n_correct += 1
+        elif pred["predicted_location"] == pred["metadata"]["fix_location"] and \
+                    pred["predicted_type"] == pred["metadata"]["fix_type"]:
+            if "predicted_token" in pred and pred["predicted_token"] != pred["metadata"]["fix_token"]:
+                continue
+            from pprint import pprint
+            pprint(pred)
+
+    # n_correct = sum([is_correct(pred["predicted_code"]) for pred in tqdm(preds, desc="Checking correctness")])
     print(f"Code corrected: {n_correct}/{len(preds)} ({n_correct/len(preds)*100:.1f}%)")
     return preds
 
@@ -74,7 +85,7 @@ def fix_code(code: str, char_i: int, typ: str, tok: str, old_tok: str):
     elif typ == "modify":
         return f"{code[:char_i]}{tok}{code[char_i+len(old_tok):]}"
     elif typ == "insert":
-        return f"{code[:char_i]}{tok}{code[char_i:]}"
+        return f"{code[:char_i]}{tok} {code[char_i:]}"
 
 
 def load_model(source: str):
