@@ -3,22 +3,69 @@ title: ASDL Project
 subtitle: Fixing syntactically incorrect code with Deep Learning
 author: Valentin Knappich
 date: \today
-institute: University of Stuttgart \newline Course Analyzing Software using Deep Learning \newline Prof. Michael Pradel
+institute: University of Stuttgart, Analyzing Software using Deep Learning, Prof. Michael Pradel
 
 theme: metropolis
-slide_level: 2
+slide_level: 1
 aspectratio: 169
 fontsize: 12pt
+theme: metropolis
 
-header-includes:
-    - \usepackage{listings}
+header-includes: |
+    \usepackage{tabto}
+    \NumTabs{10}
+
+    \definecolor{primary}{HTML}{384D48}
+    \definecolor{design}{HTML}{ACAD94}
+    \setbeamercolor{palette primary}{fg=white, bg=primary}
+    \setbeamercolor{progress bar}{fg=primary, bg=design}
+    \setbeamercolor{background canvas}{bg=white}
+
+    \metroset{numbering=fraction, progressbar=foot}
+
+    `\setbeamertemplate{section in toc}[sections numbered]`{=latex}
+    `\setbeamertemplate{subsection in toc}[subsections numbered]`{=latex}
+
+    \makeatletter
+    \setlength{\metropolis@titleseparator@linewidth}{1.5pt}
+    \setlength{\metropolis@progressonsectionpage@linewidth}{1.5pt}
+    \setlength{\metropolis@progressinheadfoot@linewidth}{1.5pt}
+    \makeatother
+
+    \usepackage{listings}
+
+    \definecolor{background}{RGB}{255, 255, 255}
+    \definecolor{string}{RGB}{230, 219, 116}
+    \definecolor{comment}{RGB}{117, 113, 94}
+    \definecolor{normal}{RGB}{248, 248, 242}
+    \definecolor{identifier}{RGB}{166, 226, 46}
+
+    \lstset{
+        language=python,                			% choose the language of the code
+        stepnumber=1,                   		% the step between two line-numbers.        
+        numbersep=5pt,                  		% how far the line-numbers are from the code
+        numberstyle=\tiny\color{black}\ttfamily,
+        backgroundcolor=\color{background},  		% choose the background color. You must add \usepackage{color}
+        showspaces=false,               		% show spaces adding particular underscores
+        showstringspaces=false,         		% underline spaces within strings
+        showtabs=false,                 		% show tabs within strings adding particular underscores
+        tabsize=4,                      		% sets default tabsize to 2 spaces
+        captionpos=b,                   		% sets the caption-position to bottom
+        breaklines=true,                		% sets automatic line breaking
+        breakatwhitespace=true,         		% sets if automatic breaks should only happen at whitespace
+        title=\lstname,                 		% show the filename of files included with \lstinputlisting;
+        basicstyle=\color{normal}\ttfamily,					% sets font style for the code
+        keywordstyle=\color{magenta}\ttfamily,	% sets color for keywords
+        stringstyle=\color{string}\ttfamily,		% sets color for strings
+        commentstyle=\color{comment}\ttfamily,	% sets color for comments
+        emph={},
+        emphstyle=\color{identifier}\ttfamily
+    }
 ---
 
 ## Agenda
 
-1. Preprocessing
-2. Modeling & Training
-3. Outlook
+\tableofcontents
 
 # Preprocessing
 
@@ -32,13 +79,6 @@ header-includes:
         - Sometimes thrown before the end of sequence \textrightarrow tokens lost
         - Advantage for the model
         - Occurs only 132 times in the whole dataset (50000 samples)
-- Converting character index to token index and back
-
-## Vocabulary
-
-- Build vocabulary by dynamically updating a `set` of tokens
-- Vocabulary as basis for numerical representation of tokens \newline `input_id = vocab.index(token)`
-- Needs to be saved with the trained model for correct prediction
 
 ## Testing Preprocessing
 
@@ -58,21 +98,21 @@ header-includes:
 
 ## Architecture
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{img/arch0.png}
 \end{figure}
 
 ## Architecture
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{img/arch1.png}
 \end{figure}
 
 ## Architecture
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{img/arch2.png}
 \end{figure}
@@ -85,12 +125,19 @@ header-includes:
 - Solution: Use linear loss weighting schedule
     - decrease location loss weight
     - increase type and token loss weight
+\vspace{15pt}
 
-\begin{lstlisting}[basicstyle=\scriptsize, language=Python]
-location_weight = torch.tensor([-(x + 1) / n_epochs + 1 for x in range(n_epochs)])
-type_weight     = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
-token_weight    = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
+\begin{figure}
+\centering
+\begin{lstlisting}[language=Python, basicstyle=\scriptsize, xleftmargin=.1\textwidth]
+location_weight = torch.tensor([-(x + 1) / n_epochs + 1 
+                                for x in range(n_epochs)])
+type_weight     = torch.tensor([(x + 1) / n_epochs 
+                                for x in range(n_epochs)])
+token_weight    = torch.tensor([(x + 1) / n_epochs 
+                                for x in range(n_epochs)])
 \end{lstlisting}
+\end{figure}
 
 
 # Results
@@ -98,14 +145,15 @@ token_weight    = torch.tensor([(x + 1) / n_epochs for x in range(n_epochs)])
 ## Results
 
 - Results vary depending on random initialization and random test split
-- Evaluating on test set once per epoch (single file / multiple files)
-    - Location Accuracy: $~85-95\%\quad/\quad~90-95\%$
-    - Fix Type Accuracy: $~65-75\%\quad/\quad~80-85\%$
-    - Fix Token Accuracy: $~55-65\%\quad/\quad~70-80\%$
+- Training on single file or whole dataset implemented (single / whole)
+- Evaluating on test set once per epoch 
+    - Location Accuracy: \tab$~85-95\%\quad/\quad~90-95\%$ (single / whole)
+    - Fix Type Accuracy: \tab$~65-75\%\quad/\quad~80-85\%$ (single / whole)
+    - Fix Token Accuracy: \tab$~55-65\%\quad/\quad~70-80\%$ (single / whole)
 - Prediction
-    - Fraction of corrected code snippets: $~60\%\quad/\quad~80\%$
+    - Fraction of corrected code snippets: $\approx60\%\quad/\quad\approx80\%$ (single / whole)
 
-## Questions?
+## Questions
 
 \begin{figure}
 \centering
