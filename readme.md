@@ -34,9 +34,9 @@ In that sense, the dataset contains several assumptions that are not met in real
 - `tokenize` package
 - Error handling needed for incorrect code: 
     - `TokenError`
-        - Thrown at the end of the sequence \textrightarrow no tokens lost
+        - Thrown at the end of the sequence &#8594; no tokens lost
     - `IndentationError`
-        - Sometimes thrown before the end of sequence \textrightarrow tokens lost
+        - Sometimes thrown before the end of sequence &#8594; tokens lost
         - Advantage for the model
         - Occurs only 132 times in the whole dataset (50000 samples)
 
