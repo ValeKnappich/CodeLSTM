@@ -3,3 +3,4 @@ bash conda_install.sh -b -p $HOME/miniconda
 rm conda_install.sh
 eval "$(~/miniconda/bin/conda shell.bash hook)"
 pip install -r requirements.txt
+conda init
