@@ -1,0 +1,244 @@
+[
+	{
+        "code": "\ndef __lt__(self, other):\n    try:\n        return self.nums < other.nums\n    except AttributeError:\n        return self.nums[0] < other\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 48,
+            "fix_type": "modify",
+            "fix_token": "ID",
+            "id": 60155
+        },
+        "correct_code": "\ndef ID (ID ,ID ):\n    try :\n        return ID .ID <ID .ID \n    except ID :\n        return ID .ID [LIT ]<ID \n",
+        "wrong_code": "\ndef ID (ID ,ID ):\n    try :\n        return ID .:<ID .ID \n    except ID :\n        return ID .ID [LIT ]<ID \n"
+    },
+    {
+        "code": "\ndef __eq__(self, other):\n    try:\n        return self.nums == other.nums\n    except AttributeError:\n        return self.nums[0] == other\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 75,
+            "fix_type": "delete",
+            "id": 60156
+        },
+        "correct_code": "\ndef ID (ID ,ID ):\n    try :\n        return ID .ID ==ID .ID \n    except ID :\n        return ID .ID [LIT ]==ID \n",
+        "wrong_code": "\ndef ID (ID ,ID ):\n    try :\n        return ID .ID ==ID .ID \n    except ID ==:\n        return ID .ID [LIT ]==ID \n"
+    },
+    {
+        "code": "\ndef __str__(self):\n    return self.originalVal\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 34,
+            "fix_type": "delete",
+            "id": 60157
+        },
+        "correct_code": "\ndef ID (ID ):\n    return ID .ID \n",
+        "wrong_code": "\ndef ID (ID ):\n    return ID .ID \nwith "
+    },
+    {
+        "code": "\ndef __json__(self):\n    return self.originalVal\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 0,
+            "fix_type": "modify",
+            "fix_token": "\n",
+            "id": 60158
+        },
+        "correct_code": "\ndef ID (ID ):\n    return ID .ID \n",
+        "wrong_code": "yield def ID (ID ):\n    return ID .ID \n"
+    },
+    {
+        "code": "\ndef __repr__(self):\n    return \"HierarchicalNumber(\"+repr(self.originalVal)+\")\"\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 4,
+            "fix_type": "modify",
+            "fix_token": "ID",
+            "id": 60159
+        },
+        "correct_code": "\ndef ID (ID ):\n    return LIT +ID (ID .ID )+LIT \n",
+        "wrong_code": "\ndef !(ID ):\n    return LIT +ID (ID .ID )+LIT \n"
+    },
+    {
+        "code": "\ndef intersperse(iterable, delimiter):\n    it = iter(iterable)\n    yield next(it)\n    for x in it:\n        yield delimiter\n        yield x\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 17,
+            "fix_type": "insert",
+            "fix_token": ":",
+            "id": 60160
+        },
+        "correct_code": "\ndef ID (ID ,ID ):\n    ID =ID (ID )\n    yield ID (ID )\n    for ID in ID :\n        yield ID \n        yield ID \n",
+        "wrong_code": "\ndef ID (ID ,ID )\n    ID =ID (ID )\n    yield ID (ID )\n    for ID in ID :\n        yield ID \n        yield ID \n"
+    },
+    {
+        "code": "def __repr__(self):\n    return \"Nil()\"\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 14,
+            "fix_type": "delete",
+            "id": 60161
+        },
+        "correct_code": "def ID (ID ):\n    return LIT \n",
+        "wrong_code": "def ID (ID ):\nreturn     return LIT \n"
+    },
+    {
+        "code": "def __str__(self):\n    return \"Nil\"\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 4,
+            "fix_type": "modify",
+            "fix_token": "ID",
+            "id": 60162
+        },
+        "correct_code": "def ID (ID ):\n    return LIT \n",
+        "wrong_code": "def async (ID ):\n    return LIT \n"
+    },
+    {
+        "code": "def __nonzero__(self):\n    return False\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 13,
+            "fix_type": "modify",
+            "fix_token": "\n",
+            "id": 60163
+        },
+        "correct_code": "def ID (ID ):\n    return LIT \n",
+        "wrong_code": "def ID (ID ):yield return LIT \n"
+    },
+    {
+        "code": "def __call__(self, *args, **kwargs):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 40,
+            "fix_type": "delete",
+            "id": 60164
+        },
+        "correct_code": "def ID (ID ,*ID ,**ID ):\n    return ID \n",
+        "wrong_code": "def ID (ID ,*ID ,**ID ):\n    return ID \nelif "
+    },
+    {
+        "code": "def __getitem__(self, key):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 16,
+            "fix_type": "delete",
+            "id": 60165
+        },
+        "correct_code": "def ID (ID ,ID ):\n    return ID \n",
+        "wrong_code": "def ID (ID ,ID )(:\n    return ID \n"
+    },
+    {
+        "code": "def __setitem__(self, key, val):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 26,
+            "fix_type": "delete",
+            "id": 60166
+        },
+        "correct_code": "def ID (ID ,ID ,ID ):\n    return ID \n",
+        "wrong_code": "def ID (ID ,ID ,ID ):\n    assert return ID \n"
+    },
+    {
+        "code": "def __delitem__(self, key, val):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 0,
+            "fix_type": "delete",
+            "id": 60167
+        },
+        "correct_code": "def ID (ID ,ID ,ID ):\n    return ID \n",
+        "wrong_code": "[def ID (ID ,ID ,ID ):\n    return ID \n"
+    },
+    {
+        "code": "def __getattr__(self, name):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 7,
+            "fix_type": "modify",
+            "fix_token": "(",
+            "id": 60168
+        },
+        "correct_code": "def ID (ID ,ID ):\n    return ID \n",
+        "wrong_code": "def ID pass ID ,ID ):\n    return ID \n"
+    },
+    {
+        "code": "def __setattr__(self, name, value):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 12,
+            "fix_type": "insert",
+            "fix_token": "ID",
+            "id": 60169
+        },
+        "correct_code": "def ID (ID ,ID ,ID ):\n    return ID \n",
+        "wrong_code": "def ID (ID ,,ID ):\n    return ID \n"
+    },
+    {
+        "code": "def __delattr__(self, name, value):\n    return self\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 20,
+            "fix_type": "insert",
+            "fix_token": ":",
+            "id": 60170
+        },
+        "correct_code": "def ID (ID ,ID ,ID ):\n    return ID \n",
+        "wrong_code": "def ID (ID ,ID ,ID )\n    return ID \n"
+    },
+    {
+        "code": "def __eq__(self, other):\n    if isinstance(other, Nil) or other is None:\n        return True\n    return False\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 59,
+            "fix_type": "delete",
+            "id": 60171
+        },
+        "correct_code": "def ID (ID ,ID ):\n    if ID (ID ,ID )or ID is ID :\n        return LIT \n    return LIT \n",
+        "wrong_code": "def ID (ID ,ID ):\n    if ID (ID ,ID )or ID is ID :\n        +return LIT \n    return LIT \n"
+    },
+    {
+        "code": "def __iter__(self):\n    return iter([])\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 8,
+            "fix_type": "delete",
+            "id": 60172
+        },
+        "correct_code": "def ID (ID ):\n    return ID ([])\n",
+        "wrong_code": "def ID (lambda ID ):\n    return ID ([])\n"
+    },
+    {
+        "code": "\ndef getjson(x):\n    try:\n        return x.__json__()\n    except:\n        return x\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 86,
+            "fix_type": "delete",
+            "id": 60173
+        },
+        "correct_code": "\ndef ID (ID ):\n    try :\n        return ID .ID ()\n    except :\n        return ID \n",
+        "wrong_code": "\ndef ID (ID ):\n    try :\n        return ID .ID ()\n    except :\n        return ID \n    nonlocal "
+    },
+    {
+        "code": "\ndef printjsonobject(x, indent, level):\n    for k in x.keys():\n        pass\n    for k,v in x.items():\n        pass\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 73,
+            "fix_type": "insert",
+            "fix_token": ",",
+            "id": 60174
+        },
+        "correct_code": "\ndef ID (ID ,ID ,ID ):\n    for ID in ID .ID ():\n        pass \n    for ID ,ID in ID .ID ():\n        pass \n",
+        "wrong_code": "\ndef ID (ID ,ID ,ID ):\n    for ID in ID .ID ():\n        pass \n    for ID ID in ID .ID ():\n        pass \n"
+    },
+    {
+        "code": "\ndef printjsonobjectarray(x, indent, level):\n    for i,v in enumerate(x):\n        if i != 0:\n            pass\n",
+        "metadata": {
+            "file": "py150_files/data/tabatkins/bikeshed/bikeshed/config.py",
+            "fix_location": 49,
+            "fix_type": "modify",
+            "fix_token": ":",
+            "id": 60175
+        },
+        "correct_code": "\ndef ID (ID ,ID ,ID ):\n    for ID ,ID in ID (ID ):\n        if ID !=LIT :\n            pass \n",
+        "wrong_code": "\ndef ID (ID ,ID ,ID ):\n    for ID ,ID in ID (ID )continue \n        if ID !=LIT :\n            pass \n"
+    }
+]
