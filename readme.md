@@ -53,6 +53,13 @@ In that sense, the dataset contains several assumptions that are not met in real
 - Decorator `@` (fails 4 times in 50000 samples)
     - `"@=="` gives `["@=", "="]` instead of `["@", "=="]`
 
+```bash
+WARNING:root:TokenError           occurred 9065    of 50000   times at ID's 8, 9, 11, 20, 36, 39, 47, 50, 58, 68...
+WARNING:root:IndentationError     occurred 132     of 50000   times at ID's 428, 493, 1428, 1598, 1836, 1866, 2660, 2706, 3036, 3381...
+WARNING:root:walrus               occurred 85      of 50000   times at ID's 1800, 2637, 2754, 3174, 3782, 5708, 5816, 6094, 6966, 7999...
+WARNING:root:decorator            occurred 4       of 50000   times at ID's 14066, 27131, 32921, 46163
+```
+
 
 ## Modeling & Training
 
