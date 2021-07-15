@@ -35,9 +35,10 @@ In that sense, the dataset contains several assumptions that are not met in real
 - Error handling needed for incorrect code: 
     - `TokenError`
         - Thrown at the end of the sequence &#8594; no tokens lost
+        - Can be savely ignored
     - `IndentationError`
         - Sometimes thrown before the end of sequence &#8594; tokens lost
-        - Advantage for the model
+        - Slight advantage for the model
         - Occurs only 132 times in the whole dataset (50000 samples)
 
 ### Testing Preprocessing
