@@ -3,7 +3,7 @@
 ## Installation
 
 The implementation uses `Python 3.8`. Dependencies can be installed via `pip install -r requirements.txt`.
-The script [install.py](install.py) is intended for use on Google Colab. It downloads and installs conda and installs all python packages in the base environment.
+The script [install.sh](install.sh) is intended for use on Google Colab. It downloads and installs conda and installs all python packages in the base environment.
 
 ## Dataset
 
